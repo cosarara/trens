@@ -78,7 +78,7 @@ class WebSite:
             return "404 here"
         if dst is None:
             return Template(stations_template).render(
-                base="/trens"+src,
+                base="/trens/"+src,
                 stations=sorted(lastdata[src].keys()))
         if dst not in lastdata[src]:
             return "404 here"
