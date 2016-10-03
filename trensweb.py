@@ -12,29 +12,32 @@ import cherrypy
 from datetime import datetime
 import time
 import threading
+import asyncio
 from mako.template import Template
 
 lastdata = {}
 
-def update(src, dst):
+def update(src, dst, loop):
     if src not in lastdata:
         lastdata[src] = {}
     newdata = {}
     lastdata[src][dst] = newdata
     date = datetime.today()
     newdata["date"] = date
-    trains = trens.get_trains(date, src, dst)
+    trains = trens.get_trains(date, src, dst, loop)
     newdata["trains"] = sorted(list(trains))
 
-def updater():
+def updater(event_loop):
+    asyncio.set_event_loop(event_loop)
     while True:
-        update("SC", "PC")
-        update("PC", "SC")
-        update("SC", "UN")
-        update("UN", "SC")
+        update("SC", "PC", event_loop)
+        update("PC", "SC", event_loop)
+        update("SC", "UN", event_loop)
+        update("UN", "SC", event_loop)
         time.sleep(60*15)
 
-t = threading.Thread(target=updater)
+loop = asyncio.get_event_loop()
+t = threading.Thread(target=updater, args=(loop,))
 t.start()
 
 stations_template = """<!doctype html>

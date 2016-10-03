@@ -39,7 +39,7 @@ def make_train(data):
     arribada = datetime.strptime(data["arribada"], "%d/%m/%Y %H:%M:%S")
     return Train(sortida, arribada, data["linia"])
 
-def get_trains(date, src="SC", dst="UN"):
+def get_trains(date, src="SC", dst="UN", loop=None):
     url = 'http://www.fgc.net/cercador/cerca.asp'
     trains = set()
 
@@ -53,7 +53,10 @@ def get_trains(date, src="SC", dst="UN"):
                 trains.add(train)
             print(train)
 
-    loop = asyncio.get_event_loop()
+    close_loop = False
+    if loop is None:
+        loop = asyncio.get_event_loop()
+        close_loop = True
     conn = aiohttp.TCPConnector(limit=10)
 
     tasks = []
@@ -72,7 +75,8 @@ def get_trains(date, src="SC", dst="UN"):
                 }
                 tasks.append(asyncio.ensure_future(fetch(session, payload)))
         loop.run_until_complete(asyncio.gather(*tasks))
-    loop.close()
+    if close_loop:
+        loop.close()
 
     return trains
 
