@@ -36,10 +36,10 @@ def make_train(data):
 
 def get_trains(date, src="SC", dst="UN"):
     trains = set()
-    #for i in range(24):
-    #    for j in (0, 20, 40):
-    for i in (9, 10):
+    for i in range(24):
         for j in (0, 20, 40):
+    #for i in (9, 10):
+    #    for j in (0, 20, 40):
             print(i, j)
             payload = {
                 "liniasel": 1,

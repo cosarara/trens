@@ -30,13 +30,14 @@ def updater():
     while True:
         update("SC", "PC")
         update("SC", "UN")
-        time.sleep(60*5)
+        time.sleep(60*15)
 
 t = threading.Thread(target=updater)
 t.start()
 
 stations_template = """<!doctype html>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Horaris FGC</title>
 <link rel="stylesheet" href="/jaume/css/trens.css">
 <h1>Tria una estació</h1>
@@ -49,6 +50,7 @@ stations_template = """<!doctype html>
 
 template = """<!doctype html><% title = "Trens de " + src + " a " + dst %>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title}</title>
 <link rel="stylesheet" href="/jaume/css/trens.css">
 <h1>${title}</h1>
@@ -68,13 +70,13 @@ class WebSite:
     def GET(self, src=None, dst=None):
         if src is None:
             return Template(stations_template).render(
-                base="",
+                base="/trens",
                 stations=sorted(lastdata.keys()))
         if src not in lastdata:
             return "404 here"
         if dst is None:
             return Template(stations_template).render(
-                base="/"+src,
+                base="/trens"+src,
                 stations=sorted(lastdata[src].keys()))
         if dst not in lastdata[src]:
             return "404 here"
@@ -108,7 +110,7 @@ if __name__ == "__main__":
         }
     }
     #cherrypy.quickstart(WebSite(), "/", conf)
-    cherrypy.tree.mount(WebSite(), '/', conf)
+    cherrypy.tree.mount(WebSite(), '/trens', conf)
     cherrypy.engine.timeout_monitor.unsubscribe()
     cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
