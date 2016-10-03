@@ -29,7 +29,9 @@ def update(src, dst):
 def updater():
     while True:
         update("SC", "PC")
+        update("PC", "SC")
         update("SC", "UN")
+        update("UN", "SC")
         time.sleep(60*15)
 
 t = threading.Thread(target=updater)
