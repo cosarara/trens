@@ -26,16 +26,14 @@ def update(src, dst):
     trains = trens.get_trains(date, src, dst)
     newdata["trains"] = sorted(list(trains))
 
-update("SC", "PC")
-update("SC", "UN")
-
 def updater():
     while True:
+        update("SC", "PC")
+        update("SC", "UN")
         time.sleep(60*5)
-        update()
 
-#t = threading.Thread(target=updater)
-#t.start()
+t = threading.Thread(target=updater)
+t.start()
 
 stations_template = """<!doctype html>
 <meta charset="UTF-8">
@@ -88,16 +86,6 @@ class WebSite:
             dst=dst,
             trains=trains,
             updated=date)
-    #@cherrypy.expose
-    #def index(self):
-    #    date = lastdata["date"]
-    #    trains = lastdata["trains"]
-    #    return Template(template).render(
-    #        src=src,
-    #        dst=dst,
-    #        trains=lastdata["trains"],
-    #        updated=lastdata["date"])
-        #return "{}<br>{}".format(date, "<br>".join(str(t) for t in trains))
 
 if __name__ == "__main__":
     cherrypy.config.update({
@@ -121,5 +109,7 @@ if __name__ == "__main__":
     }
     #cherrypy.quickstart(WebSite(), "/", conf)
     cherrypy.tree.mount(WebSite(), '/', conf)
+    cherrypy.engine.timeout_monitor.unsubscribe()
+    cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
     cherrypy.engine.block()
