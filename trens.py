@@ -7,10 +7,15 @@
 """
 
 import sys
-import requests
+#import requests
 from datetime import datetime
 from collections import namedtuple
 from pprint import pprint
+
+import json
+import aiohttp
+import asyncio
+import async_timeout
 
 class Train(namedtuple("Train", ['sortida', 'arribada', 'linia'])):
     def __lt__(self, other):
@@ -35,31 +40,45 @@ def make_train(data):
     return Train(sortida, arribada, data["linia"])
 
 def get_trains(date, src="SC", dst="UN"):
+    url = 'http://www.fgc.net/cercador/cerca.asp'
     trains = set()
-    for i in range(24):
-        for j in (0, 20, 40):
-    #for i in (9, 10):
-    #    for j in (0, 20, 40):
-            print(i, j)
-            payload = {
-                "liniasel": 1,
-                "estacio_origen": src,
-                "estacio_desti": dst,
-                "tipus": "S",
-                "dia": date.strftime("%d/%m/%Y"),
-                "horas": i,
-                "minutos": j
-            }
-            r = requests.get('http://www.fgc.net/cercador/cerca.asp', params=payload)
-            r_out = r.json()[0][0]
+
+    async def fetch(session, payload):
+        async with session.get(url, params=payload) as resp:
+            assert resp.status == 200
+            text = await resp.text()
+            r_out = json.loads(text)[0][0]
             for train in r_out:
                 train = make_train(train[0])
                 trains.add(train)
+            print(train)
+
+    loop = asyncio.get_event_loop()
+    conn = aiohttp.TCPConnector(limit=10)
+
+    tasks = []
+    with aiohttp.ClientSession(loop=loop, connector=conn) as session:
+        for i in range(24):
+            for j in (0, 20, 40):
+                print(i, j)
+                payload = {
+                    "liniasel": 1,
+                    "estacio_origen": src,
+                    "estacio_desti": dst,
+                    "tipus": "S",
+                    "dia": date.strftime("%d/%m/%Y"),
+                    "horas": i,
+                    "minutos": j
+                }
+                tasks.append(asyncio.ensure_future(fetch(session, payload)))
+        loop.run_until_complete(asyncio.gather(*tasks))
+    loop.close()
+
     return trains
 
 if __name__ == "__main__":
     date = datetime.today()
-    print("data fetched on {}".format(date))
     trains = get_trains(date)
+    print("data fetched on {}".format(date))
     for train in sorted(list(trains)):
         print(train)
