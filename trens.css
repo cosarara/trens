@@ -1,0 +1,46 @@
+/*
+ * trens.css
+ */
+html {
+	width: 100%;
+}
+body {
+	background: white;
+	color: black;
+	max-width: 400px;
+	margin: 5px auto;
+	border-radius: 3px;
+	border-width: 1px;
+	border-color: gray;
+	border-style: solid;
+	padding: 10px;
+	text-align: center;
+}
+h1 {
+	margin-top: 0;
+}
+.llista-trens, .llista-estacions {
+	padding: 0;
+	list-style-type: none;
+	text-align: center;
+}
+.linia {
+	display: inline-block;
+	min-width: 3em;
+	background-color: #616161;
+	color: white;
+	border-radius: 3px;
+	margin: 3px;
+	padding: 2px;
+	text-align: center;
+}
+.S55, .S5 {
+	background-color: #136eac;
+}
+.S1 {
+	background-color: #f66014;
+}
+.S2 {
+	background-color: #7d971d;
+}
+
